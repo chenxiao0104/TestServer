@@ -151,14 +151,15 @@ class ServerCom:
         oper = jsonMsg.get("operPlatform")
         newTask.operPlatform = oper
         if(newTask.operPlatform == CommonInfo._OPER_WINI386 or newTask.operPlatform == CommonInfo._OPER_WINRTARM7 or\
-           newTask.operPlatform == CommonInfo._OPER_WINRTI386 or newTask.operPlatform == CommonInfo._OPER_WINRTX64):
+           newTask.operPlatform == CommonInfo._OPER_WINRTI386 or newTask.operPlatform == CommonInfo._OPER_WINRTX64 or\
+           newTask.operPlatform == CommonInfo._OPER_BLUEI386 or newTask.operPlatform == CommonInfo._OPER_BLUEX64):
             extName = '.exe'
         elif (newTask.operPlatform == CommonInfo._OPER_ANDROID):
             extName = '.apk'
         else:
             extName = ''
 
-        fileDir = 'C:\\bvttest\\'+newTask.taskId
+        fileDir = CommonInfo.binaryDir+os.path.sep+newTask.taskId
         if(os.path.exists(fileDir)==False):
             os.mkdir(fileDir)
         filePath = fileDir+'\\bvttest'+extName

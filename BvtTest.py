@@ -90,22 +90,21 @@ class BvtTest(multiprocessing.Process):
             f.write(outputstr)
             f.close()
             result = self.analysisResult(outputfile)
-            #p.wait()
         return result
 
     def run_bvt_win_remote(self,configSection):   
         executable=self.config.get(configSection,'exec')
-        conf=self.config.get(configSection,'conf')
+        #conf=self.config.get(configSection,'conf')
         user=self.config.get(configSection,'user')
         passwd=self.config.get(configSection,'passwd')
         deviceIp=self.config.get(configSection,'device_ip')
         devicePort=self.config.get(configSection,'device_port')
         remoteRoot=self.config.get(configSection,'remote_root')
-        testFilter = self.config.get(configSection, 'test_filter')
         remoteFolder=self.config.get(configSection,'remote_folder')+os.path.sep+self.taskInfo.taskId
+        #binaryDir = remoteRoot+os.path.sep+remoteFolder
+        testFilter = self.config.get(configSection, 'test_filter')
         outputfile=self.outputPath+os.path.sep+"output.txt"      
         sysstr = platform.system()
-        
         bvtFile=self.taskInfo.binaryPath
         if(os.path.isfile(bvtFile)):
             result = 'PASS'
@@ -113,13 +112,15 @@ class BvtTest(multiprocessing.Process):
             result = 'ABORT'
             
         if("Windows" == sysstr and 'PASS' == result):
-            cleancmd = "winrs -r:http://"+deviceIp+':'+devicePort +" -timeout:1800000 "+' -u:'+user+' -p:'+passwd+' DEL /Q '+remoteRoot + os.path.sep + remoteFolder + os.path.sep + conf + os.path.sep + '*'
-            ret = subprocess.call(cleancmd, shell=False)      
-            pushcmd="copy /Y " + bvtFile +' ' + os.path.sep + os.path.sep + deviceIp + os.path.sep + remoteFolder + os.path.sep + conf
+            #cleancmd = "winrs -r:http://"+deviceIp+':'+devicePort +" -timeout:1800000 "+' -u:'+user+' -p:'+passwd+' rd /S /Q '+ remoteRoot + remoteFolder
+            #ret = subprocess.call(cleancmd, shell=False)
+            readycmd = "winrs -r:http://"+deviceIp+':'+devicePort +" -timeout:1800000 "+' -u:'+user+' -p:'+passwd+' mkdir '+ remoteRoot + remoteFolder
+            ret = subprocess.call(readycmd,shell=False)
+            pushcmd="copy /Y " + bvtFile +' ' + os.path.sep + os.path.sep + deviceIp + os.path.sep + remoteFolder + os.path.sep + executable
             ret = subprocess.call(pushcmd, shell=True)   
-            runcmd = "winrs -r:http://"+deviceIp+':'+devicePort +" -timeout:1800000 "+' -u:'+user+' -p:'+passwd+' '+remoteRoot + os.path.sep + remoteFolder + os.path.sep + conf + os.path.sep + executable
-            runcmd += " -l "+remoteRoot + os.path.sep + remoteFolder + os.path.sep + conf + os.path.sep+"_sct.log"
-            runcmd += " --gtest_output=xml:"+remoteRoot + os.path.sep + remoteFolder + os.path.sep + conf + os.path.sep+"_detail.xml"
+            runcmd = "winrs -r:http://"+deviceIp+':'+devicePort +" -timeout:1800000 "+' -u:'+user+' -p:'+passwd+' '+ remoteRoot + remoteFolder + os.path.sep + executable
+            runcmd += " -l " + remoteRoot + remoteFolder + os.path.sep+"sct.log"
+            runcmd += " --gtest_output=xml:"+ remoteRoot + remoteFolder + os.path.sep+"detail.xml"
             runcmd += " --gtest_filter=" + testFilter
             #print(runcmd)    
             p = subprocess.Popen(runcmd, shell = False, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -128,9 +129,12 @@ class BvtTest(multiprocessing.Process):
             f = open(outputfile,'w')
             f.write(outputstr)
             f.close()
-            pushcmd="copy /Y " + os.path.sep + os.path.sep + deviceIp + os.path.sep + remoteFolder + os.path.sep + conf + os.path.sep +"_detail.xml ."
+            pushcmd="copy /Y " + os.path.sep + os.path.sep + deviceIp + os.path.sep + remoteFolder + os.path.sep +"detail.xml"+" "+self.outputPath+os.path.sep+"detail.xml"
             ret = subprocess.call(pushcmd, shell=True)
+            cleancmd = "winrs -r:http://"+deviceIp+':'+devicePort +" -timeout:1800000 "+' -u:'+user+' -p:'+passwd+' rd /S /Q '+ remoteRoot + remoteFolder
+            ret = subprocess.call(cleancmd, shell=False)
             result = self.analysisResult(outputfile)
+            
         return result
     
     def run_bvt_android(self,configSection):
@@ -218,7 +222,7 @@ class BvtTest(multiprocessing.Process):
             f = open(outputfile,'w')
             f.write(outputstr)
             f.close()
-            #pullcmd=self.toolPath+os.path.sep+"PSCP.EXE" + ' ' + "-l " + user + ' ' + "-pw " + passwd + ' ' + deviceIp + ":" + remotePath+"/detail.xml ¡£"
+            #pullcmd=self.toolPath+os.path.sep+"PSCP.EXE" + ' ' + "-l " + user + ' ' + "-pw " + passwd + ' ' + deviceIp + ":" + remotePath+"/detail.xml ã€‚"
             pullcmd=self.toolPath+os.path.sep+"PSCP.EXE" + ' ' + "-l " + user + ' ' + "-pw " + passwd + ' ' + deviceIp + ":" + remotePath + "/detail.xml " + CommonInfo.outputDir+"\\"+self.taskInfo.taskId 
             ret = subprocess.call(pullcmd)
             cleancmd=self.toolPath+os.path.sep+"PLINK.EXE" + ' ' + "-l " + user + ' ' + "-pw " + passwd + ' ' + deviceIp + " rm -rf " + remotePath
@@ -236,8 +240,7 @@ class BvtTest(multiprocessing.Process):
         
         
     def selectTest(self):
-        print('bvt test',self.taskInfo.taskId,' run.')
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!",self.taskInfo.operPlatform);
+        print('[LOG: bvt test',self.taskInfo.taskId,' run]')
         if (self.taskInfo.operPlatform == CommonInfo._OPER_IOS):
             result = self.run_bvt_ssh("ios-armv7")
         elif(self.taskInfo.operPlatform == CommonInfo._OPER_ANDROID):

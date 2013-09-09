@@ -26,7 +26,7 @@ class MasterServer:
         try:
             self.serverSock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
             self.serverSock.setblocking(False)
-            serverAddr = ('10.172.76.34',15504)
+            serverAddr = ('10.172.76.63',15504)
             self.serverSock.bind(serverAddr)
             self.serverSock.listen(100)
             self.inputs.append(self.serverSock)
@@ -122,6 +122,11 @@ class MasterServer:
         else:
             os.mkdir(CommonInfo.outputDir)
             print("[INIT %s not exists, CREATE it.]" %(CommonInfo.outputDir,))
+            
+        if (os.path.exists(CommonInfo.toolDir)==False):
+            print("[ERROR: tools dir NOT exists]")
+            return False
+        
         missTool = []
         for toolName in CommonInfo.toolNames:
             if(os.path.exists(CommonInfo.toolDir+"\\"+toolName)):
