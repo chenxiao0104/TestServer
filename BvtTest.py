@@ -221,8 +221,8 @@ class BvtTest(multiprocessing.Process):
             #pullcmd=self.toolPath+os.path.sep+"PSCP.EXE" + ' ' + "-l " + user + ' ' + "-pw " + passwd + ' ' + deviceIp + ":" + remotePath+"/detail.xml ¡£"
             pullcmd=self.toolPath+os.path.sep+"PSCP.EXE" + ' ' + "-l " + user + ' ' + "-pw " + passwd + ' ' + deviceIp + ":" + remotePath + "/detail.xml " + CommonInfo.outputDir+"\\"+self.taskInfo.taskId 
             ret = subprocess.call(pullcmd)
-            #cleancmd=self.toolPath+os.path.sep+"PLINK.EXE" + ' ' + "-l " + user + ' ' + "-pw " + passwd + ' ' + deviceIp + " rm -rf " + remotePath
-            #ret = subprocess.call(cleancmd)
+            cleancmd=self.toolPath+os.path.sep+"PLINK.EXE" + ' ' + "-l " + user + ' ' + "-pw " + passwd + ' ' + deviceIp + " rm -rf " + remotePath
+            ret = subprocess.call(cleancmd)
             
             result = self.analysisResult(outputfile)
             p.wait()
