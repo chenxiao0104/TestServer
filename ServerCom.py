@@ -1,10 +1,9 @@
 from HandleMsg import *
 from TaskInfo import *
 from CommonInfo import *
-from TestController import *
+from BvtTest import *
 import os
 import time
-#import threading
 import multiprocessing
 import subprocess
 
@@ -29,7 +28,7 @@ class ServerCom:
         if(length<=0):
             return
         elif(length>CommonInfo._SOCK_SIZE):
-            print("BUG: msg length is greater than design size-",CommonInfo._SOCK_SIZE)
+            print("[BUG: msg length is greater than design size-",CommonInfo._SOCK_SIZE,"]")
             msg = msg.encode('ascii')
             serverSock.send(msg)
         else:
@@ -108,15 +107,14 @@ class ServerCom:
         else:
             fileSize = 0
         msg = self.handleMsg.createTestResult(taskInfo,fileSize)
-        print(msg)
         self.sendMsg(msg, clientSock)
         print("[LOG: %s send test result.]" %(taskInfo.taskId,))
-        self.sendOutputfile(taskInfo, clientSock)
-        print("[LOG: %s send outputfile.]" %(taskInfo.taskId,))
+        if(taskInfo.testResult==CommonInfo._TESTRESULT_PASS or taskInfo.testResult==CommonInfo._TESTRESULT_FAIL):
+            self.sendOutputfile(taskInfo, clientSock)
+            print("[LOG: %s send outputfile.]" %(taskInfo.taskId,))
         
     def sendOutputfile(self,taskInfo,serverSock):
         logPath = taskInfo.outputDir+os.path.sep+taskInfo.taskId+os.path.sep+"output.txt"
-        print("logPath: ",logPath)
         if(os.path.exists(logPath)):
             fileSize = os.path.getsize(logPath)
         else:

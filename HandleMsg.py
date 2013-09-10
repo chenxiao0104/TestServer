@@ -1,6 +1,4 @@
-import sys
 import json
-sys.path.append('C:\\Users\\t-xche\\Desktop\\TestServer')
 from CommonInfo import *
 
 class HandleMsg:
@@ -55,9 +53,14 @@ class HandleMsg:
         jsonMsg["taskId"] = taskInfo.taskId
         jsonMsg["msgType"] = CommonInfo._MSGTYPE_TESTRESULT
         jsonMsg["testResult"] = taskInfo.testResult
-        jsonMsg["outputPath"] = taskInfo.outputDir+taskInfo.taskId+"\\output.txt"
-        jsonMsg["outputSize"] = outputSize
-        jsonMsg["detailPath"] = taskInfo.outputDir+taskInfo.taskId+"\\detail.xml"
+        if(taskInfo.testResult==CommonInfo._TESTRESULT_PASS or taskInfo.testResult==CommonInfo._TESTRESULT_FAIL):
+            jsonMsg["outputPath"] = taskInfo.outputDir+taskInfo.taskId+"\\output.txt"
+            jsonMsg["outputSize"] = outputSize
+            jsonMsg["detailPath"] = taskInfo.outputDir+taskInfo.taskId+"\\detail.xml"
+        else:
+            jsonMsg["outputPath"] = "BVT abort, No output.txt"
+            jsonMsg["outputSize"] = 0
+            jsonMsg["detailPath"] = "BVT abort, No detail.xml"
         msg = json.dumps(jsonMsg)
         return msg
 

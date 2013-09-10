@@ -63,6 +63,7 @@ class CommonInfo:
     _APPRECV_FAIL  = 0
     
     #Test Case Result
+    _TESTRESULT_ABORT = 2
     _TESTRESULT_PASS = 1
     _TESTRESULT_FAIL = 0
     
@@ -82,3 +83,7 @@ class CommonInfo:
     binaryDir = "C:\\bvttest"
     outputDir = "C:\\bvttest\\testOutput"
     toolNames = ["PLINK.EXE","PSCP.EXE","adb.exe","AdbWinApi.dll","AdbWinUsbApi.dll"]
+    
+    #server information
+    ServerIp = "10.172.76.63"
+    ServerPort = 15504

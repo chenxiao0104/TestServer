@@ -7,7 +7,6 @@ import CommonInfo
 from HandleMsg import *
 from ServerCom import *
 from TaskInfo import *
-from TestController import *
 import subprocess
 import select
 import socket
@@ -26,11 +25,10 @@ class MasterServer:
         try:
             self.serverSock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
             self.serverSock.setblocking(False)
-            serverAddr = ('10.172.76.63',15504)
+            serverAddr = (CommonInfo.ServerIp,CommonInfo.ServerPort)
             self.serverSock.bind(serverAddr)
             self.serverSock.listen(100)
             self.inputs.append(self.serverSock)
-            #self.testController.start()
             print('[LOG: server start OK]')
             return True
         except:
@@ -70,13 +68,13 @@ class MasterServer:
                         msgType = self.serverCom.parseMsgType(jsonMsg)
                 
                         if(msgType == CommonInfo._MSGTYPE_NEWTASK):
-                            print("[LOG: ",jsonMsg.get("taskId"),' recv task req]')
+                            print("[LOG:",jsonMsg.get("taskId"),' recv task req]')
                             newTask = self.serverCom.handleTaskReq(jsonMsg,serviceSock)
                             self.serverCom.sendTaskReqAck(serviceSock, newTask)
                             continue
                         
                         if(msgType == CommonInfo._MSGTYPE_APPREADY):
-                            print("[LOG: ",jsonMsg.get("taskId"),' recv app ready]')
+                            print("[LOG:",jsonMsg.get("taskId"),' recv app ready]')
                             recvTask = self.serverCom.findTaskByMsg(jsonMsg)
                             if(recvTask==None):
                                 continue
@@ -98,13 +96,13 @@ class MasterServer:
                             
                             if(reqTask.taskStatus == CommonInfo._TESTCASE_FINISH):
                                 time.sleep(1)
-                                print("[LOG: ",jsonMsg.get("taskId"),' test case finish]')
+                                print("[LOG:",jsonMsg.get("taskId"),' test case finish]')
                                 self.serverCom.sendTestResult(serviceSock, reqTask)
-                                print("[LOG: ",jsonMsg.get("taskId"),' recv analysis result]')
+                                print("[LOG:",jsonMsg.get("taskId"),' recv analysis result]')
                                 self.serverCom.closeNormal(reqTask, serviceSock)
                                 self.inputs.remove(serviceSock)
                                 serviceSock.close()
-                                print("[LOG: ",jsonMsg.get("taskId"),' client close]')
+                                print("[LOG:",jsonMsg.get("taskId"),' client close]')
                             reqTask = None
                             continue
 
